@@ -1,6 +1,6 @@
 # **SEA Wikipedia Code**
 ---
-Welcome to SEA Wikipedia Code Repository. This repo containing script used for generating data in [SEA Wikipedia HF](https://huggingface.co/datasets/sabilmakbar/sea_wiki). The data are extracted from [Wikipedia HF](https://huggingface.co/datasets/wikipedia) and processed using the scripts available in this repository for reproducibility purpose. For licensing purpose, this codebase adopts license ```cc-by-sa 4.0```, following Wikipedia data license [cc-by-sa 4.0](https://en.wikipedia.org/wiki/Wikipedia:Copyrights), and Wikipedia HF Repo that has [cc-by-sa 3.0](https://huggingface.co/datasets/wikipedia).
+Welcome to SEA Wikipedia Code Repository. This repo containing script used for generating data in [SEA Wikipedia HF](https://huggingface.co/datasets/sabilmakbar/sea_wiki). The data are extracted from [Wikipedia HF](https://huggingface.co/datasets/wikipedia) and processed using the scripts available in this repository for reproducibility purpose. For licensing purpose, this codebase adopts license ```GNU General Public License``` and the data generated follows Wikipedia license of [cc-by-sa 4.0](https://en.wikipedia.org/wiki/Wikipedia:Copyrights).
 
 # Getting Started #
 ### To read the datasets directly ###
