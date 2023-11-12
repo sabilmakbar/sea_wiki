@@ -29,6 +29,27 @@ def set_logger():
     return logger
 
 
+def read_csv_ignore_some_nulls(path: str, null_list_data: list=None, *args, **kwargs):
+    '''
+    Wrapper of `read_path` fn that ignores some of null data
+
+    Parameters
+    ----------
+    path: path to CSV files (usually GCS path)
+    null_list_data: list of values that aren't considered as string-null values
+    Returns
+    -------
+    pandas DataFrame object
+    '''
+    #values of pd._libs.parsers.STR_NA_VALUES: {'', '<NA>', 'NaN', 'N/A', 'null', '1.#QNAN', 'None', '#NA', 'nan', '-NaN', '#N/A N/A', '-1.#QNAN', 'NA', '-1.#IND', 'n/a', 'NULL', '-nan', '1.#IND', '#N/A'}
+    _unconsidered_for_null_list = ['NA', 'NULL', 'null', 'nan', 'null', 'NaN', 'None']
+    if null_list_data is not None:
+        _unconsidered_for_null_list.extend(null_list_data)
+
+    values_to_considered_missing_data = [val for val in pd._libs.parsers.STR_NA_VALUES if val not in _unconsidered_for_null_list]
+    return pd.read_csv(path, keep_default_na=False, na_values=values_to_considered_missing_data, *args, **kwargs)
+
+
 #only executed if called directly
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -55,9 +76,9 @@ if __name__ == "__main__":
     for idx, path in enumerate(csv_list_files):
         logger.info(f"Processinng data {idx+1} out of {len(csv_list_files)}")
         if idx == 0:
-            df = pd.read_csv(path)
+            df = read_csv_ignore_some_nulls(path, compression='gzip')
         else:
-            df = pd.concat([df, pd.read_csv(path)], ignore_index=True)
+            df = pd.concat([df, read_csv_ignore_some_nulls(path, compression='gzip')], ignore_index=True)
     
     logger.info("Loading done!")
     logger.info(f"#Data collected: {df.shape[0]}")

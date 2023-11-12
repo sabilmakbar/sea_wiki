@@ -1,4 +1,3 @@
-# %%
 '''
 Script on Cleansing Wikipedia Data that has been extracted from extract_raw_wiki_data.py
 '''
@@ -144,6 +143,27 @@ def remove_non_alphanumeric(text: str):
 #     return remove_non_alphanumeric(remove_excessive_whitespace(text.lower()))
 
 
+def read_csv_ignore_some_nulls(path: str, null_list_data: list=None, *args, **kwargs):
+    '''
+    Wrapper of `read_path` fn that ignores some of null data
+
+    Parameters
+    ----------
+    path: path to CSV files (usually GCS path)
+    null_list_data: list of values that aren't considered as string-null values
+    Returns
+    -------
+    pandas DataFrame object
+    '''
+    #values of pd._libs.parsers.STR_NA_VALUES: {'', '<NA>', 'NaN', 'N/A', 'null', '1.#QNAN', 'None', '#NA', 'nan', '-NaN', '#N/A N/A', '-1.#QNAN', 'NA', '-1.#IND', 'n/a', 'NULL', '-nan', '1.#IND', '#N/A'}
+    _unconsidered_for_null_list = ['NA', 'NULL', 'null', 'nan', 'null', 'NaN', 'None']
+    if null_list_data is not None:
+        _unconsidered_for_null_list.extend(null_list_data)
+
+    values_to_considered_missing_data = [val for val in pd._libs.parsers.STR_NA_VALUES if val not in _unconsidered_for_null_list]
+    return pd.read_csv(path, keep_default_na=False, na_values=values_to_considered_missing_data, *args, **kwargs)
+
+
 def _text_normalizer_constructor(
         remove_non_alphanumeric_bool: bool, remove_excessive_whitespace_bool: bool,
         remove_html_tags_bool: bool, decode_url_bool: bool, encoder_check_bool: bool,
@@ -269,28 +289,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # class dotdict(dict):
-    #     """dot.notation access to dictionary attributes"""
-    #     __getattr__ = dict.get
-    #     __setattr__ = dict.__setitem__
-    #     __delattr__ = dict.__delitem__
-    
-    # args = dotdict({
-    #     "raw_csv_path":"",
-    #     "drop_hard_dupl": True,
-    #     "drop_soft_dupl": True,
-    #     "save_dir_path": os.path.dirname(os.path.abspath(__file__)),
-    #     "overwrite_initial_title_data": False,
-    #     "overwrite_initial_text_data": False,
-    #     "remove_non_alphanumeric_option":"neither",
-    #     "remove_excessive_whitespace_option": "neither",
-    #     "remove_html_tags_option":"neither",
-    #     "decode_url_option":"neither",
-    #     "encoder_check_option":"all",
-    #     "text_encoder_choice_title":"utf8",
-    #     "text_encoder_choice_text":"utf8"
-    # })
-
     _TEXT_PROCESSING_FN, _TITLE_PROCESSING_FN = _args_to_text_constructor_fn(
         remove_non_alphanumeric_option = args.remove_non_alphanumeric_option,
         remove_excessive_whitespace_option = args.remove_excessive_whitespace_option,
@@ -310,7 +308,7 @@ if __name__ == "__main__":
     overwrite_initial_text_data = args.overwrite_initial_text_data
 
 
-    df = pd.read_csv(raw_data_path)
+    df = read_csv_ignore_some_nulls(raw_data_path, compression='gzip')
     if len(set(df.columns).difference(set(_EXPECTED_COLNAMES))) != 0 or len(set(_EXPECTED_COLNAMES).difference(set(df.columns))) != 0:
         raise ValueError(f"The data schema expected, consist of columns: {', '.join(df.columns.to_list())} doesn't match with expected column values of {', '.join(_EXPECTED_COLNAMES)}!")
 
@@ -409,6 +407,6 @@ if __name__ == "__main__":
         if overwrite_initial_title_data:
             _override_suffix_identifier = "_title"+_override_suffix_identifier
 
-    _save_file_name = ".".join(raw_data_path.split("/")[-1].split(".")[:-1]) + "_dedup_cleansed" + _override_suffix_identifier + ".csv"
+    _save_file_name = ".".join(raw_data_path.split("/")[-1].split(".")[:-2]) + "_dedup_cleansed" + _override_suffix_identifier + ".csv.gz"
     _save_file_name = _save_file_name.replace("_raw", "")
-    df.to_csv(f"{save_dir}/{_save_file_name}", index=False)
+    df.to_csv(f"{save_dir}/{_save_file_name}", index=False, compression='gzip')

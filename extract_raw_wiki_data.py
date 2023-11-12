@@ -67,7 +67,7 @@ if __name__ == "__main__":
     logger.info("Loading done!")
     logger.info(f"#Data collected: {df.shape[0]}")
     logger.info("Saving dataset raw form...")
-    df.to_csv(f"{save_dir}/wiki_{lang_id}_{date_ver}_raw_dataset.csv", index=False)
+    df.to_csv(f"{save_dir}/wiki_{lang_id}_{date_ver}_raw_dataset.csv.gz", index=False, compression='gzip')
 
     del df
     gc.collect()

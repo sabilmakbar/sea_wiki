@@ -45,8 +45,8 @@ echo "The params soft-dedup drop is set as $drop_soft_dupl"
 for val in ${!file_name_array[@]}; do
     csv_path=${file_name_array[$val]}
 
-    if [[ ${csv_path} != *".csv" ]]; then
-        echo "The extracted file name isn't a CSV! Skipping! Received $csv_path"
+    if [[ ${csv_path} != *".csv.gz" ]]; then
+        echo "The extracted file name isn't a CSV gzip-compressed! Skipping! Received $csv_path"
         continue
     fi
 
