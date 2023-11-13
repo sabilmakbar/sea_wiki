@@ -10,8 +10,12 @@ import os, gc
 import logging
 import argparse
 
+from itertools import chain
+
 import pandas as pd
 from datasets import load_dataset
+
+from sea_loader_batched.wiki_loader import Wikipedia
 
 
 def set_logger():
@@ -52,7 +56,7 @@ if __name__ == "__main__":
             default=":")
 
     #default: all
-    parser.add_argument("--force_rerun_split", help="""Flag to identify whether to check existing
+    parser.add_argument("--force-rerun-split", help="""Flag to identify whether to check existing
                         splits or forcing to re-create it""",
             default=False)
 
@@ -74,14 +78,22 @@ if __name__ == "__main__":
     force_rerun_split_generation = args.force_rerun_split
     save_dir = args.save_dir_path
 
-    logger.info("Loading the dataset from Wikipedia...")
-    df = load_dataset(dset_name, language=lang_id, date=date_ver, beam_runner='DirectRunner',
-                        split="train", subset_file_to_process=generated_split_extraction,
-                        force_rerun_split=force_rerun_split_generation).to_pandas()
-    logger.info("Loading done!")
-    logger.info(f"#Data collected: {df.shape[0]}")
-    logger.info("Saving dataset raw form...")
-    df.to_csv(f"{save_dir}/wiki_{lang_id}_{date_ver}_raw_dataset_splitted.csv", index=False)
+    logger.info("Checking and creating the splits from Wikipedia Splitted Files...")
+    lang, _splitted_files_dict = Wikipedia(language=lang_id, date=date_ver, subset_file_to_process=generated_split_extraction,
+                    force_rerun_split=force_rerun_split_generation).check_and_create_splits()
+    splitted_files = list(chain(*_splitted_files_dict.values()))
 
-    del df
-    gc.collect()
+    logger.info("Loading the Wikipedia dataset in splitted fashion...")
+
+    _total_split_data = len(splitted_files)
+    for idx in range(len(splitted_files)):
+        logger.info(f"Loading dataset on split {idx+1} out of {_total_split_data}...")
+        df = load_dataset(dset_name, language=lang_id, date=date_ver, beam_runner='DirectRunner',
+                            split="train", subset_file_to_process=idx).to_pandas()
+        logger.info("Loading done!")
+        logger.info(f"#Data collected: {df.shape[0]}")
+        logger.info("Saving dataset raw form...")
+        df.to_csv(f"{save_dir}/wiki_{lang_id}_{date_ver}_raw_dataset_splitted_idx_{idx+1}.csv.gz", index=False, compression="gzip")
+
+        del df
+        gc.collect()

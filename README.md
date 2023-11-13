@@ -6,6 +6,9 @@ Welcome to SEA Wikipedia Code Repository. This repo containing script used for g
 ### To read the datasets directly ###
 Plase refer to the HF Repo on [SEA Wiki HF](https://huggingface.co/datasets/sabilmakbar/sea_wiki) to see ```load_datasets``` implementation of ready-to-use data
 
+### How does the data looks like ###
+You can check on several folders in this repo to check the data by yourself. More complete data can be found on corresponding HF Repo mentioned previously.
+
 ### To replicate the whole dataset generation process ###
 1. Set-up a new Python/Conda Environment (recommended Python version: 3.9.6 to 3.9.18 or 3.10.0 to 3.10.13) and install the requirements on ```requirements.txt``` use this codebase via ```pip install -r requirements.txt```.
 
@@ -32,6 +35,9 @@ You may check to the script [_```extract_raw_wiki_data.py```_](https://github.co
 
 ### How do I extract new Wikipedia Dataset of SEA languages?
 You may visit this [Wikipedia Dump Index](https://dumps.wikimedia.org/backup-index.html) to check any latest available data and this link [Wikipedia Language Coverage](https://meta.wikimedia.org/wiki/List_of_Wikipedias_by_country) to map into any languages that you're wanting to extract. Please note that this dataset is extensible to any languages of your choice.
+
+### What if my machine can't load it in one-go?
+Don't worry! You can do a batched-loading by looking at the script on [extract_raw_wiki_data_batched.py](https://github.com/sabilmakbar/sea_wiki/blob/main/extract_raw_wiki_data_batched.py) and [extract_raw_wiki_data_batched_example.sh](https://github.com/sabilmakbar/sea_wiki/blob/main/extract_raw_wiki_data_batched_example.sh). Please note that the batched approach will output same data with direct flow, but perhaps with different data ordering (although it can be verified by joining via ```id```).
 
 ## Citation Info:
 ```

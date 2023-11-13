@@ -1,21 +1,8 @@
 #!/bin/bash
 
-# all available lang codes in SEA local-languages or linguistically-related to following countries in SEA:
-# Indonesia: "ace" (Acehnese), "ban" (Balinese), "bjn" (Banjarese), "bug" (Buginese), "gor" (Gorontalo), "id" (Indonesian), "jv" (Javanese), "mad" (Madurese), "map-bms" (Banyumasan, Dialect of Javanese), "min" (Minangkabau), "ms" (Malay), "nia" (Nias), "su" (Sundanese), "tet" (Tetum)
-# Singapore: "ms" (Malay), "ta" (Tamil)
-# Malaysia: "ms" (Malay), "ta" (Tamil)
-# Brunei: "ms" (Malay)
-# Thailand: "mnw" (Mon), "shn" (Shan), "th" (Thai)
-# Myanmar: "my" (Burmese), "mnw" (Mon), "shn" (Shan)
-# Laos: "lo" (Lao)
-# Vietnam: "vi" (Vietnamese)
-# Cambodia: "km" (Khmer)
-# East Timor: "tet" (Tetum)
-# Philippines: "bcl" (Central Bicolano), "cbk-zam" (Chavacano), "ceb" (Cebuano), "ilo" (Ilokano), "pag" (Pangasinan), "pam" (Kapampangan), "tl" (Tagalog), "war" (Waray)
-
 #params of executions
-folder_dir_to_save=./sea_wiki_dedup_data
 input_folder_to_be_dedup=./sea_wiki_raw_data
+folder_dir_to_save=./sea_wiki_dedup_data
 
 drop_hard_dupl=True
 drop_soft_dupl=True

@@ -42,7 +42,7 @@ def read_csv_ignore_some_nulls(path: str, null_list_data: list=None, *args, **kw
     pandas DataFrame object
     '''
     #values of pd._libs.parsers.STR_NA_VALUES: {'', '<NA>', 'NaN', 'N/A', 'null', '1.#QNAN', 'None', '#NA', 'nan', '-NaN', '#N/A N/A', '-1.#QNAN', 'NA', '-1.#IND', 'n/a', 'NULL', '-nan', '1.#IND', '#N/A'}
-    _unconsidered_for_null_list = ['NA', 'NULL', 'null', 'nan', 'null', 'NaN', 'None']
+    _unconsidered_for_null_list = ['NA', 'NULL', 'null', 'nan', 'null', 'NaN', 'None', 'N/A']
     if null_list_data is not None:
         _unconsidered_for_null_list.extend(null_list_data)
 
@@ -54,11 +54,11 @@ def read_csv_ignore_some_nulls(path: str, null_list_data: list=None, *args, **kw
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--load-dir-path", help="""Relative load dir path of saved batch Wikipedia CSV data
+    parser.add_argument("--load-dir-path", help="""Relative load dir path of saved batch Wikipedia CSV gzip-compressed data
                     to the `concat_data.py` script dir""",
         default=os.path.dirname(os.path.abspath(__file__)))
 
-    parser.add_argument("--save-dir-path", help="""Relative save dir path of concatted Wikipedia CSV data
+    parser.add_argument("--save-dir-path", help="""Relative save dir path of concatted Wikipedia CSV gzip-compressed data
                     to the `concat_data.py` script dir""",
         default=os.path.dirname(os.path.abspath(__file__)))
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     load_dir = args.load_dir_path
     save_dir = args.save_dir_path
 
-    csv_list_files = [os.path.join(load_dir, _filename) for _filename in os.listdir(load_dir) if _filename.endswith(".csv")]
+    csv_list_files = [os.path.join(load_dir, _filename) for _filename in os.listdir(load_dir) if _filename.endswith(".csv.gz")]
 
     for idx, path in enumerate(csv_list_files):
         logger.info(f"Processinng data {idx+1} out of {len(csv_list_files)}")
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     logger.info("Loading done!")
     logger.info(f"#Data collected: {df.shape[0]}")
     logger.info("Saving dataset raw form after concatted...")
-    df.to_csv(f"{save_dir}.csv", index=False)
+    df.to_csv(f"{save_dir}.csv.gz", index=False, compression='gzip')

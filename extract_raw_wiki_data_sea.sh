@@ -16,7 +16,10 @@
 #params of executions
 date_ver=20231101
 folder_dir_to_save=./sea_wiki_raw_data
-lang_list=(ace ban bcl bjn bug cbk-zam ceb gor id ilo jv km lo mad map-bms min mnw ms my nia pag pam shn su tet ta th tl vi war)
+# example:
+lang_list=(ace id map-bms mnw pag pam shn war)
+# full list:
+# lang_list=(ace ban bcl bjn bug cbk-zam ceb gor id ilo jv km lo mad map-bms min mnw ms my nia pag pam shn su tet ta th tl vi war)
 
 
 #main executions

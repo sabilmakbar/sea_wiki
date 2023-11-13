@@ -29,7 +29,6 @@ import datasets
 
 
 logger = datasets.logging.get_logger(__name__)
-logger.setLevel(datasets.logging.DEBUG)
 
 _CITATION = """\
 @ONLINE {wikidump,
@@ -884,7 +883,7 @@ class WikipediaConfig(datasets.BuilderConfig):
     """BuilderConfig for Wikipedia."""
 
     def __init__(self, language=None, date=None, version=_VERSION,
-                split_size:int=_GiB_SIZE_IDENTIFIER, subset_file_to_process:str=":", 
+                split_size:int=0.5*_GiB_SIZE_IDENTIFIER, subset_file_to_process:str=":",
                 force_rerun_split: bool=False, **kwargs):
         """BuilderConfig for Wikipedia.
 
@@ -956,11 +955,13 @@ class Wikipedia(datasets.BeamBasedBuilder):
             citation=_CITATION,
         )
 
-    def _split_generators(self, dl_manager, pipeline):
+
+    def check_and_create_splits(self):
         def _base_url(lang):
             return _BASE_URL_TMPL.format(lang=lang.replace("-", "_"), date=self.config.date)
 
         lang = self.config.language
+        dl_manager = datasets.DownloadManager()
 
         info_url = _base_url(lang) + _INFO_FILE
         # Use dictionary since testing mock always returns the same result.
@@ -992,6 +993,7 @@ class Wikipedia(datasets.BeamBasedBuilder):
         downloaded_files = dl_manager.download({"xml": xml_urls})
 
         logger.info("found %s file(s) needs to be splitted", str(sum(is_split_xml)))
+
         downloaded_files = split_bz2_files(downloaded_files, is_split_xml, self.config.split_size, self.config.force_rerun_split)
 
         # filter downloaded paths based on start-end file splits
@@ -1000,6 +1002,12 @@ class Wikipedia(datasets.BeamBasedBuilder):
             if len(_new_files) == 0:
                 raise ValueError("The config of file splits resulting in zero file to be processed!")
             downloaded_files["xml"] = _new_files
+
+        return lang, downloaded_files
+
+
+    def _split_generators(self, dl_manager, pipeline):
+        lang, downloaded_files = self.check_and_create_splits()
 
         if not pipeline.is_local():
             downloaded_files = dl_manager.ship_files_with_pipeline(downloaded_files, pipeline)
@@ -1115,7 +1123,7 @@ def split_bz2_files(downloaded_files_dict:dict, is_split_xml_identifier:bool,
         header_list, keep_appending_for_header = [], True
 
         # Define Counters
-        filecount, line_cnt, text_data_size = 1, 0, 0
+        filecount, line_cnt, text_data_size, page_cnt = 1, 0, 0, 0
 
         # Open Source bz2 for splitting
         logger.info("Reading bz2 file %s for splitting", filename)
@@ -1143,9 +1151,9 @@ def split_bz2_files(downloaded_files_dict:dict, is_split_xml_identifier:bool,
             # the </page> determines new wiki page
             if b'</page>\n' in line and text_data_size > desired_uncompressed_filesize_per_split:
                 _close_and_add_closing_tag(chunk_file)
-
+                page_cnt += 1
                 # log status and info for every successful split process
-                logger.debug("total new data %s has reached the threshold of %s after %d line(s)", str(text_data_size), str(desired_uncompressed_filesize_per_split), line_cnt)
+                logger.debug("total new data with size of %d has reached the threshold of %d after %d line(s) and %d page(s)", int(text_data_size), int(desired_uncompressed_filesize_per_split), line_cnt, page_cnt)
                 split_filename.append(chunk_file_name)
 
                 # reset text_data_size and do an increment filename
@@ -1153,8 +1161,8 @@ def split_bz2_files(downloaded_files_dict:dict, is_split_xml_identifier:bool,
                 line_cnt = 0
                 filecount += 1
 
-                logger.info("creating new splitted filename %s", chunk_file_name)
                 chunk_file, chunk_file_name = _create_chunk_file(filename, filecount)
+                logger.info("creating new splitted filename %s", chunk_file_name)
                 _preempt_file_with_data(chunk_file, header_list)
 
         #check if the file isn't closed yet

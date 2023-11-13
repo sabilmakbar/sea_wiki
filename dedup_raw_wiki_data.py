@@ -145,7 +145,7 @@ def remove_non_alphanumeric(text: str):
 
 def read_csv_ignore_some_nulls(path: str, null_list_data: list=None, *args, **kwargs):
     '''
-    Wrapper of `read_path` fn that ignores some of null data
+    Wrapper of `pd.read_csv` fn that ignores some of null data
 
     Parameters
     ----------
@@ -156,7 +156,7 @@ def read_csv_ignore_some_nulls(path: str, null_list_data: list=None, *args, **kw
     pandas DataFrame object
     '''
     #values of pd._libs.parsers.STR_NA_VALUES: {'', '<NA>', 'NaN', 'N/A', 'null', '1.#QNAN', 'None', '#NA', 'nan', '-NaN', '#N/A N/A', '-1.#QNAN', 'NA', '-1.#IND', 'n/a', 'NULL', '-nan', '1.#IND', '#N/A'}
-    _unconsidered_for_null_list = ['NA', 'NULL', 'null', 'nan', 'null', 'NaN', 'None']
+    _unconsidered_for_null_list = ['NA', 'NULL', 'null', 'nan', 'null', 'NaN', 'None', 'N/A']
     if null_list_data is not None:
         _unconsidered_for_null_list.extend(null_list_data)
 
